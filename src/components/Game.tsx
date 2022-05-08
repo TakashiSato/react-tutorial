@@ -37,6 +37,7 @@ type State = {
   xIsNext: boolean;
 };
 
+// Const useGame = (boardSize: number): []
 const Game: FC<Props> = ({ boardSize }) => {
   const [game, setGame] = useState<State>({
     history: [
@@ -56,18 +57,18 @@ const Game: FC<Props> = ({ boardSize }) => {
   const history = game.history.slice(0, game.stepNumber + 1);
   const current = history[game.stepNumber];
   const sqrs = current.squares.slice();
-  const winnerInfo = calculateWinner(sqrs);
+  const { winner, winSquares } = calculateWinner(sqrs);
   const nextPlayer = game.xIsNext ? 'X' : 'O';
 
   const highlights = current.highlights.slice();
-  if (winnerInfo) {
-    winnerInfo.winSquares.forEach((n) => {
+  if (winSquares) {
+    winSquares.forEach((n) => {
       highlights[n] = true;
     });
   }
 
   const handleClick = (num: number) => {
-    if (winnerInfo || sqrs[num]) {
+    if (winner || sqrs[num]) {
       return;
     }
 
@@ -96,7 +97,7 @@ const Game: FC<Props> = ({ boardSize }) => {
 
   const jumpTo = (step: number) =>
     setGame((prevGame) => ({
-      history: prevGame.history,
+      ...prevGame,
       stepNumber: step,
       xIsNext: step % 2 === 0,
     }));
@@ -136,31 +137,36 @@ const Game: FC<Props> = ({ boardSize }) => {
   };
 
   return (
-    <div className="game">
-      <div className="game-board">
-        <Board
-          boardSize={boardSize}
-          squares={sqrs}
-          highlights={highlights}
-          onClick={handleClick}
-        />
-      </div>
-      <div className="game-info">
-        <div>
-          {winnerInfo
-            ? winnerInfo.winner === 'Draw'
-              ? 'Draw!'
-              : `Winner: ${winnerInfo.winner}`
-            : `Next player: ${nextPlayer}`}
+    <>
+      <header className="game-header">
+        <h1>Game</h1>
+      </header>
+      <div className="game">
+        <div className="game-board">
+          <Board
+            boardSize={boardSize}
+            squares={sqrs}
+            highlights={highlights}
+            onClick={handleClick}
+          />
         </div>
-        <div>
-          <button key="toggle-history" type="button" onClick={toggleHistory}>
-            Toggle History Order
-          </button>
+        <div className="game-info">
+          <div>
+            {winner
+              ? winner === 'Draw'
+                ? 'Draw!'
+                : `Winner: ${winner}`
+              : `Next player: ${nextPlayer}`}
+          </div>
+          <div>
+            <button key="toggle-history" type="button" onClick={toggleHistory}>
+              Toggle History Order
+            </button>
+          </div>
+          {createHistoryOrder()}
         </div>
-        {createHistoryOrder()}
       </div>
-    </div>
+    </>
   );
 };
 

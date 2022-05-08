@@ -12,13 +12,11 @@ export const range = (n: number): number[] =>
   n < 0 ? [] : Array.from(Array(n), (_, i) => i);
 
 type WinnerInfo = {
-  winner: string;
-  winSquares: number[];
+  winner: string | null;
+  winSquares?: number[];
 };
 
-export const calculateWinner = (
-  squares: (string | null)[],
-): WinnerInfo | null => {
+export const calculateWinner = (squares: (string | null)[]): WinnerInfo => {
   const boardSize = Math.sqrt(squares.length);
 
   const lines = Array<number[]>().concat(
@@ -48,16 +46,13 @@ export const calculateWinner = (
     }
   }
 
-  console.log('--------------');
-  squares.forEach((n) => console.log(n));
-  console.log('--------------');
-
   if (squares.every((s) => s !== null)) {
     return {
       winner: 'Draw',
-      winSquares: [],
     };
   }
 
-  return null;
+  return {
+    winner: null,
+  };
 };
